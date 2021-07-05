@@ -12,16 +12,24 @@ pub struct Point3 {
 impl ops::Sub for Point3 {
     type Output = Vector3;
 
-    fn sub(self, _rhs: Self) -> Self::Output {
-        todo!()
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self::Output {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+        }
     }
 }
 
 impl ops::Add<Vector3> for Point3 {
     type Output = Point3;
 
-    fn add(self, _rhs: Vector3) -> Self::Output {
-        todo!()
+    fn add(self, rhs: Vector3) -> Self::Output {
+        Self::Output {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
+        }
     }
 }
 impl ops::AddAssign<Vector3> for Point3 {
@@ -33,8 +41,8 @@ impl ops::AddAssign<Vector3> for Point3 {
 impl ops::Sub<Vector3> for Point3 {
     type Output = Point3;
 
-    fn sub(self, _rhs: Vector3) -> Self::Output {
-        todo!()
+    fn sub(self, rhs: Vector3) -> Self::Output {
+        self + -rhs
     }
 }
 impl ops::SubAssign<Vector3> for Point3 {

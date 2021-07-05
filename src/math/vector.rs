@@ -34,7 +34,11 @@ impl ops::Neg for Vector3 {
     type Output = Vector3;
 
     fn neg(self) -> Self::Output {
-        todo!()
+        Self::Output {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+        }
     }
 }
 
@@ -67,8 +71,12 @@ impl ops::SubAssign for Vector3 {
 impl ops::Mul<Vector3> for f64 {
     type Output = Vector3;
 
-    fn mul(self, _rhs: Vector3) -> Self::Output {
-        todo!()
+    fn mul(self, rhs: Vector3) -> Self::Output {
+        Self::Output {
+            x: self * rhs.x,
+            y: self * rhs.y,
+            z: self * rhs.z,
+        }
     }
 }
 impl ops::MulAssign<f64> for Vector3 {
@@ -80,8 +88,8 @@ impl ops::MulAssign<f64> for Vector3 {
 impl ops::Div<f64> for Vector3 {
     type Output = Vector3;
 
-    fn div(self, _rhs: f64) -> Self::Output {
-        todo!()
+    fn div(self, rhs: f64) -> Self::Output {
+        (1.0 / rhs) * self
     }
 }
 impl ops::DivAssign<f64> for Vector3 {
