@@ -8,7 +8,32 @@ use std::mem::MaybeUninit;
 use image::{Color, Pixel};
 use math::{Point3, Ray3, Vector3};
 
+const SPHERE_CENTER: Point3 = Point3 {
+    x: 0.0,
+    y: 0.0,
+    z: 1.0,
+};
+const SPHERE_RADIUS: f64 = 0.5;
+fn hit_sphere(ray: &Ray3) -> bool {
+    let oc = ray.origin - SPHERE_CENTER;
+
+    let a = Vector3::dot(&ray.direction, &ray.direction);
+    let b = 2.0 * Vector3::dot(&oc, &ray.direction);
+    let c = Vector3::dot(&oc, &oc) - SPHERE_RADIUS * SPHERE_RADIUS;
+    let discriminant = b * b - 4.0 * a * c;
+
+    discriminant > 0.0
+}
+
 fn ray_color(ray: &Ray3) -> Color {
+    if hit_sphere(ray) {
+        return Color {
+            r: 1.0,
+            g: 0.0,
+            b: 0.0,
+        };
+    }
+
     let t = 0.5 * (1.0 - ray.direction.y);
     let blue = Color {
         r: 0.5,
