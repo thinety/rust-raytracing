@@ -1,5 +1,7 @@
 use std::ops;
 
+use rand::Rng;
+
 #[derive(Clone, Copy)]
 pub struct Vector3 {
     pub x: f64,
@@ -27,6 +29,15 @@ impl Vector3 {
     }
     pub fn unit(&self) -> Self {
         *self / self.length()
+    }
+
+    pub fn random_unit() -> Self {
+        let vec = Self {
+            x: rand::thread_rng().gen_range(-1.0..=1.0),
+            y: rand::thread_rng().gen_range(-1.0..=1.0),
+            z: rand::thread_rng().gen_range(-1.0..=1.0),
+        };
+        vec.unit()
     }
 }
 

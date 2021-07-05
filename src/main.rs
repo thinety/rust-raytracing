@@ -12,20 +12,26 @@ use hittable::{Hittable, Sphere};
 use image::{Camera, Color, Pixel};
 use math::{Point3, Ray3, Vector3};
 
-fn ray_color<World: Hittable>(ray: &Ray3, world: &World) -> Color {
-    if let Some(hit_record) = world.hit(ray, 0.0, f64::INFINITY) {
-        let normal_color = Color {
-            r: hit_record.normal.x,
-            g: -hit_record.normal.y,
-            b: -hit_record.normal.z,
+fn ray_color<World: Hittable>(ray: &Ray3, world: &World, depth: u32) -> Color {
+    if depth == 0 {
+        return Color {
+            r: 0.0,
+            g: 0.0,
+            b: 0.0,
         };
-        let white = Color {
-            r: 1.0,
-            g: 1.0,
-            b: 1.0,
+    }
+
+    // t_min starts at 0.0001 to fix shadow acne
+    if let Some(hit_record) = world.hit(ray, 0.0001, f64::INFINITY) {
+        let hit_point = hit_record.ray.at(hit_record.t);
+        let target_point = hit_point + hit_record.normal + Vector3::random_unit();
+
+        let new_ray = Ray3 {
+            origin: hit_point,
+            direction: (target_point - hit_point).unit(),
         };
 
-        return 0.5 * (normal_color + white);
+        return 0.5 * ray_color(&new_ray, world, depth - 1);
     }
 
     let t = 0.5 * (1.0 - ray.direction.y);
@@ -49,6 +55,7 @@ fn main() {
     const IMAGE_WIDTH: usize = 400;
     const IMAGE_HEIGHT: usize = ((IMAGE_WIDTH as f64) / ASPECT_RATIO) as usize;
     const SAMPLES_PER_PIXEL: u32 = 100;
+    const MAX_DEPTH: u32 = 50;
 
     // World
     let world: Vec<Box<dyn Hittable>> = vec![
@@ -105,15 +112,15 @@ fn main() {
 
                 let ray = camera.get_ray(h, v);
 
-                color += ray_color(&ray, &world);
+                color += ray_color(&ray, &world, MAX_DEPTH);
             }
 
-            // sampling correction
+            // sampling and gamma correction
             let scale = 1.0 / (SAMPLES_PER_PIXEL as f64);
             color = Color {
-                r: (scale * color.r),
-                g: (scale * color.g),
-                b: (scale * color.b),
+                r: (scale * color.r).sqrt(),
+                g: (scale * color.g).sqrt(),
+                b: (scale * color.b).sqrt(),
             };
 
             *pixel = MaybeUninit::new(Pixel { color });
