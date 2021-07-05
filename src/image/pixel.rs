@@ -24,8 +24,10 @@ impl ops::Add for Color {
     }
 }
 impl ops::AddAssign for Color {
-    fn add_assign(&mut self, _rhs: Self) {
-        todo!()
+    fn add_assign(&mut self, rhs: Self) {
+        self.r += rhs.r;
+        self.g += rhs.g;
+        self.b += rhs.b;
     }
 }
 

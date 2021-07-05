@@ -6,8 +6,10 @@ mod math;
 
 use std::mem::MaybeUninit;
 
+use rand::Rng;
+
 use hittable::{Hittable, Sphere};
-use image::{Color, Pixel};
+use image::{Camera, Color, Pixel};
 use math::{Point3, Ray3, Vector3};
 
 fn ray_color<World: Hittable>(ray: &Ray3, world: &World) -> Color {
@@ -46,6 +48,7 @@ fn main() {
     const ASPECT_RATIO: f64 = 16.0 / 9.0;
     const IMAGE_WIDTH: usize = 400;
     const IMAGE_HEIGHT: usize = ((IMAGE_WIDTH as f64) / ASPECT_RATIO) as usize;
+    const SAMPLES_PER_PIXEL: u32 = 100;
 
     // World
     let world: Vec<Box<dyn Hittable>> = vec![
@@ -68,31 +71,16 @@ fn main() {
     ];
 
     // Camera
-    let viewport_height = 2.0;
-    let viewport_width = viewport_height * ASPECT_RATIO;
-    let focal_length = 1.0;
-
-    let origin = Point3 {
-        x: 0.0,
-        y: 0.0,
-        z: 0.0,
-    };
-    let horizontal = Vector3 {
-        x: viewport_width,
-        y: 0.0,
-        z: 0.0,
-    };
-    let vertical = Vector3 {
-        x: 0.0,
-        y: viewport_height,
-        z: 0.0,
-    };
-    let focal = Vector3 {
-        x: 0.0,
-        y: 0.0,
-        z: focal_length,
-    };
-    let top_left_corner = origin + focal - horizontal / 2.0 - vertical / 2.0;
+    let camera = Camera::new(
+        ASPECT_RATIO,
+        2.0,
+        1.0,
+        Point3 {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        },
+    );
 
     // Pixel data
     let pixels: Box<MaybeUninit<[Pixel; IMAGE_WIDTH * IMAGE_HEIGHT]>> = Box::new_uninit();
@@ -103,14 +91,30 @@ fn main() {
     eprint!("\nCalculating pixel data\n");
     for (i, line) in pixels.iter_mut().enumerate() {
         for (j, pixel) in line.iter_mut().enumerate() {
-            let h = (j as f64) / ((IMAGE_WIDTH - 1) as f64);
-            let v = (i as f64) / ((IMAGE_HEIGHT - 1) as f64);
-            let ray = Ray3 {
-                origin,
-                direction: ((top_left_corner + h * horizontal + v * vertical) - origin).unit(),
+            let mut color = Color {
+                r: 0.0,
+                g: 0.0,
+                b: 0.0,
             };
 
-            let color = ray_color(&ray, &world);
+            for _ in 0..SAMPLES_PER_PIXEL {
+                let h = ((j as f64) + rand::thread_rng().gen_range(0.0..1.0))
+                    / ((IMAGE_WIDTH - 1) as f64);
+                let v = ((i as f64) + rand::thread_rng().gen_range(0.0..1.0))
+                    / ((IMAGE_HEIGHT - 1) as f64);
+
+                let ray = camera.get_ray(h, v);
+
+                color += ray_color(&ray, &world);
+            }
+
+            // sampling correction
+            let scale = 1.0 / (SAMPLES_PER_PIXEL as f64);
+            color = Color {
+                r: (scale * color.r),
+                g: (scale * color.g),
+                b: (scale * color.b),
+            };
 
             *pixel = MaybeUninit::new(Pixel { color });
         }
