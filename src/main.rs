@@ -1,6 +1,7 @@
 #![feature(new_uninit)]
 
 mod image;
+mod math;
 
 use std::mem::MaybeUninit;
 
@@ -27,11 +28,6 @@ fn main() {
                     b: 0.25,
                 },
             });
-            eprint!(
-                "\rPixels remaining: {:4} x {:4}",
-                IMAGE_HEIGHT - i - 1,
-                IMAGE_WIDTH - j - 1,
-            );
         }
     }
     eprint!("\nDone\n");
@@ -42,12 +38,8 @@ fn main() {
     // Render (ppm format)
     eprint!("\nRendering image\n");
     print!("P3\n{} {}\n255\n", IMAGE_WIDTH, IMAGE_HEIGHT);
-    for (i, pixel) in pixels.iter().enumerate() {
+    for pixel in pixels.iter() {
         print!("{}\n", pixel);
-        eprint!(
-            "\rPixels remaining: {:7}",
-            IMAGE_WIDTH * IMAGE_HEIGHT - i - 1
-        )
     }
     eprint!("\nDone\n");
 }
