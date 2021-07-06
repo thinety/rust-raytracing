@@ -1,52 +1,39 @@
 use std::ops;
 
-use super::Vector3;
+use super::Vector;
 
 #[derive(Clone, Copy)]
-pub struct Point3 {
+pub struct Point {
     pub x: f64,
     pub y: f64,
     pub z: f64,
 }
 
-impl ops::Sub for Point3 {
-    type Output = Vector3;
+impl Point {
+    pub fn new(x: f64, y: f64, z: f64) -> Self {
+        Self { x, y, z }
+    }
+}
+
+impl ops::Sub for Point {
+    type Output = Vector;
 
     fn sub(self, rhs: Self) -> Self::Output {
-        Self::Output {
-            x: self.x - rhs.x,
-            y: self.y - rhs.y,
-            z: self.z - rhs.z,
-        }
+        Self::Output::new(self.x - rhs.x, self.y - rhs.y, self.z - rhs.z)
     }
 }
 
-impl ops::Add<Vector3> for Point3 {
-    type Output = Point3;
+impl ops::Add<Vector> for Point {
+    type Output = Point;
 
-    fn add(self, rhs: Vector3) -> Self::Output {
-        Self::Output {
-            x: self.x + rhs.x,
-            y: self.y + rhs.y,
-            z: self.z + rhs.z,
-        }
+    fn add(self, rhs: Vector) -> Self::Output {
+        Self::Output::new(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z)
     }
 }
-impl ops::AddAssign<Vector3> for Point3 {
-    fn add_assign(&mut self, _rhs: Vector3) {
-        todo!()
-    }
-}
+impl ops::Sub<Vector> for Point {
+    type Output = Point;
 
-impl ops::Sub<Vector3> for Point3 {
-    type Output = Point3;
-
-    fn sub(self, rhs: Vector3) -> Self::Output {
-        self + -rhs
-    }
-}
-impl ops::SubAssign<Vector3> for Point3 {
-    fn sub_assign(&mut self, _rhs: Vector3) {
-        todo!()
+    fn sub(self, rhs: Vector) -> Self::Output {
+        self + -1.0 * rhs
     }
 }

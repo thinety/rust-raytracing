@@ -1,19 +1,19 @@
-use super::{HitRecord, Hittable};
-use crate::math::{Point3, Ray3, Vector3};
+use crate::math::{Point, Ray, Vector};
 
-#[derive(Clone, Copy)]
+use super::{HitRecord, Hittable};
+
 pub struct Sphere {
-    pub center: Point3,
+    pub center: Point,
     pub radius: f64,
 }
 
 impl Hittable for Sphere {
-    fn hit<'a>(&self, ray: &'a Ray3, t_min: f64, t_max: f64) -> Option<HitRecord<'a>> {
+    fn hit<'a>(&self, ray: &'a Ray, t_min: f64, t_max: f64) -> Option<HitRecord<'a>> {
         let oc = ray.origin - self.center;
 
-        let a = Vector3::dot(&ray.direction, &ray.direction);
-        let half_b = Vector3::dot(&ray.direction, &oc);
-        let c = Vector3::dot(&oc, &oc) - self.radius * self.radius;
+        let a = Vector::dot(&ray.direction, &ray.direction);
+        let half_b = Vector::dot(&ray.direction, &oc);
+        let c = Vector::dot(&oc, &oc) - self.radius * self.radius;
 
         let discriminant = half_b * half_b - a * c;
         if discriminant < 0.0 {

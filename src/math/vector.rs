@@ -1,110 +1,57 @@
+use rand::Rng;
 use std::ops;
 
-use rand::Rng;
-
 #[derive(Clone, Copy)]
-pub struct Vector3 {
+pub struct Vector {
     pub x: f64,
     pub y: f64,
     pub z: f64,
 }
 
-impl Vector3 {
+impl Vector {
+    pub fn new(x: f64, y: f64, z: f64) -> Self {
+        Self { x, y, z }
+    }
+
     pub fn dot(u: &Self, v: &Self) -> f64 {
         u.x * v.x + u.y * v.y + u.z * v.z
     }
     pub fn cross(u: &Self, v: &Self) -> Self {
-        Self {
-            x: u.y * v.z - u.z * v.y,
-            y: u.z * v.x - u.x * v.z,
-            z: u.x * v.y - u.y * v.x,
-        }
+        Self::new(
+            u.y * v.z - u.z * v.y,
+            u.z * v.x - u.x * v.z,
+            u.x * v.y - u.y * v.x,
+        )
     }
 
-    pub fn length_squared(&self) -> f64 {
-        self.x * self.x + self.y * self.y + self.z * self.z
-    }
-    pub fn length(&self) -> f64 {
-        self.length_squared().sqrt()
-    }
-    pub fn unit(&self) -> Self {
-        *self / self.length()
+    pub fn unit(self) -> Self {
+        let length_squared = Self::dot(&self, &self);
+        let length = length_squared.sqrt();
+        let inverse_length = 1.0 / length;
+        inverse_length * self
     }
 
     pub fn random_unit() -> Self {
-        let vec = Self {
-            x: rand::thread_rng().gen_range(-1.0..=1.0),
-            y: rand::thread_rng().gen_range(-1.0..=1.0),
-            z: rand::thread_rng().gen_range(-1.0..=1.0),
-        };
-        vec.unit()
+        Self::new(
+            rand::thread_rng().gen_range(-1.0..=1.0),
+            rand::thread_rng().gen_range(-1.0..=1.0),
+            rand::thread_rng().gen_range(-1.0..=1.0),
+        )
+        .unit()
     }
 }
 
-impl ops::Neg for Vector3 {
-    type Output = Vector3;
+impl ops::Mul<Vector> for f64 {
+    type Output = Vector;
 
-    fn neg(self) -> Self::Output {
-        Self::Output {
-            x: -self.x,
-            y: -self.y,
-            z: -self.z,
-        }
+    fn mul(self, rhs: Vector) -> Self::Output {
+        Self::Output::new(self * rhs.x, self * rhs.y, self * rhs.z)
     }
 }
-
-impl ops::Add for Vector3 {
-    type Output = Vector3;
-
-    fn add(self, _rhs: Self) -> Self::Output {
-        todo!()
-    }
-}
-impl ops::AddAssign for Vector3 {
-    fn add_assign(&mut self, _rhs: Self) {
-        todo!()
-    }
-}
-
-impl ops::Sub for Vector3 {
-    type Output = Vector3;
-
-    fn sub(self, _rhs: Self) -> Self::Output {
-        todo!()
-    }
-}
-impl ops::SubAssign for Vector3 {
-    fn sub_assign(&mut self, _rhs: Self) {
-        todo!()
-    }
-}
-
-impl ops::Mul<Vector3> for f64 {
-    type Output = Vector3;
-
-    fn mul(self, rhs: Vector3) -> Self::Output {
-        Self::Output {
-            x: self * rhs.x,
-            y: self * rhs.y,
-            z: self * rhs.z,
-        }
-    }
-}
-impl ops::MulAssign<f64> for Vector3 {
-    fn mul_assign(&mut self, _rhs: f64) {
-        todo!()
-    }
-}
-
-impl ops::Div<f64> for Vector3 {
-    type Output = Vector3;
+impl ops::Div<f64> for Vector {
+    type Output = Vector;
 
     fn div(self, rhs: f64) -> Self::Output {
         (1.0 / rhs) * self
-    }
-}
-impl ops::DivAssign<f64> for Vector3 {
-    fn div_assign(&mut self, _rhs: f64) {
-        todo!()
     }
 }

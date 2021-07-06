@@ -1,13 +1,14 @@
-use super::{Point3, Vector3};
+use super::{Point, Vector};
 
-#[derive(Clone, Copy)]
-pub struct Ray3 {
-    pub origin: Point3,
-    pub direction: Vector3,
+/// Direction vector is expected to be unit length.
+/// Other code can (and probably will) rely on that.
+pub struct Ray {
+    pub origin: Point,
+    pub direction: Vector,
 }
 
-impl Ray3 {
-    pub fn at(&self, t: f64) -> Point3 {
+impl Ray {
+    pub fn at(&self, t: f64) -> Point {
         self.origin + t * self.direction
     }
 }

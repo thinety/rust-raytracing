@@ -1,141 +1,47 @@
-#![feature(new_uninit)]
-
 mod hittable;
 mod image;
 mod math;
 
-use std::mem::MaybeUninit;
-
-use rand::Rng;
-
 use hittable::{Hittable, Sphere};
-use image::{Camera, Color, Pixel};
-use math::{Point3, Ray3, Vector3};
-
-fn ray_color<World: Hittable>(ray: &Ray3, world: &World, depth: u32) -> Color {
-    if depth == 0 {
-        return Color {
-            r: 0.0,
-            g: 0.0,
-            b: 0.0,
-        };
-    }
-
-    // t_min starts at 0.0001 to fix shadow acne
-    if let Some(hit_record) = world.hit(ray, 0.0001, f64::INFINITY) {
-        let hit_point = hit_record.ray.at(hit_record.t);
-        let target_point = hit_point + hit_record.normal + Vector3::random_unit();
-
-        let new_ray = Ray3 {
-            origin: hit_point,
-            direction: (target_point - hit_point).unit(),
-        };
-
-        return 0.5 * ray_color(&new_ray, world, depth - 1);
-    }
-
-    let t = 0.5 * (1.0 - ray.direction.y);
-    let blue = Color {
-        r: 0.5,
-        g: 0.7,
-        b: 1.0,
-    };
-    let white = Color {
-        r: 1.0,
-        g: 1.0,
-        b: 1.0,
-    };
-
-    t * blue + (1.0 - t) * white
-}
+use image::{ppm, Camera, Image};
+use math::Point;
 
 fn main() {
+    let aspect_ratio = 16.0 / 9.0;
+
     // Image
-    const ASPECT_RATIO: f64 = 16.0 / 9.0;
-    const IMAGE_WIDTH: usize = 400;
-    const IMAGE_HEIGHT: usize = ((IMAGE_WIDTH as f64) / ASPECT_RATIO) as usize;
-    const SAMPLES_PER_PIXEL: u32 = 100;
-    const MAX_DEPTH: u32 = 50;
+    let mut image = {
+        let width = 400;
+        let height = ((width as f64) / aspect_ratio) as usize;
+        let antialiasing = Some(100);
+        let ray_depth = 50;
+        Image::new(width, height, antialiasing, ray_depth)
+    };
+
+    // Camera
+    let camera = {
+        let viewport_width = 4.0;
+        let viewport_height = viewport_width / aspect_ratio;
+        let focal_length = 1.0;
+        let origin = Point::new(0.0, 0.0, 0.0);
+        Camera::new(viewport_width, viewport_height, focal_length, origin)
+    };
 
     // World
     let world: Vec<Box<dyn Hittable>> = vec![
         Box::new(Sphere {
-            center: Point3 {
-                x: 0.0,
-                y: 0.0,
-                z: 1.0,
-            },
+            center: Point::new(0.0, 0.0, 1.0),
             radius: 0.5,
         }),
         Box::new(Sphere {
-            center: Point3 {
-                x: 0.0,
-                y: 100.5,
-                z: 1.0,
-            },
+            center: Point::new(0.0, 100.5, 1.0),
             radius: 100.0,
         }),
     ];
 
-    // Camera
-    let camera = Camera::new(
-        ASPECT_RATIO,
-        2.0,
-        1.0,
-        Point3 {
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
-        },
-    );
+    // Render
+    image.render(&camera, &world);
 
-    // Pixel data
-    let pixels: Box<MaybeUninit<[Pixel; IMAGE_WIDTH * IMAGE_HEIGHT]>> = Box::new_uninit();
-
-    let mut pixels: Box<[[MaybeUninit<Pixel>; IMAGE_WIDTH]; IMAGE_HEIGHT]> =
-        unsafe { Box::from_raw(Box::into_raw(pixels) as _) };
-
-    eprint!("\nCalculating pixel data\n");
-    for (i, line) in pixels.iter_mut().enumerate() {
-        for (j, pixel) in line.iter_mut().enumerate() {
-            let mut color = Color {
-                r: 0.0,
-                g: 0.0,
-                b: 0.0,
-            };
-
-            for _ in 0..SAMPLES_PER_PIXEL {
-                let h = ((j as f64) + rand::thread_rng().gen_range(0.0..1.0))
-                    / ((IMAGE_WIDTH - 1) as f64);
-                let v = ((i as f64) + rand::thread_rng().gen_range(0.0..1.0))
-                    / ((IMAGE_HEIGHT - 1) as f64);
-
-                let ray = camera.get_ray(h, v);
-
-                color += ray_color(&ray, &world, MAX_DEPTH);
-            }
-
-            // sampling and gamma correction
-            let scale = 1.0 / (SAMPLES_PER_PIXEL as f64);
-            color = Color {
-                r: (scale * color.r).sqrt(),
-                g: (scale * color.g).sqrt(),
-                b: (scale * color.b).sqrt(),
-            };
-
-            *pixel = MaybeUninit::new(Pixel { color });
-        }
-    }
-    eprint!("\nDone\n");
-
-    let pixels: Box<[Pixel; IMAGE_WIDTH * IMAGE_HEIGHT]> =
-        unsafe { Box::from_raw(Box::into_raw(pixels) as _) };
-
-    // Render (ppm format)
-    eprint!("\nRendering image\n");
-    print!("P3\n{} {}\n255\n", IMAGE_WIDTH, IMAGE_HEIGHT);
-    for pixel in pixels.iter() {
-        print!("{}\n", pixel);
-    }
-    eprint!("\nDone\n");
+    // Output
+    ppm::output(&image);
 }
