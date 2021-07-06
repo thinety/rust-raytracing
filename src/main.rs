@@ -7,7 +7,7 @@ use hittable::{Hittable, Sphere};
 use image::{ppm, Camera, Image};
 use material::{
     black_body::{BlackBody, NormalBlackBody},
-    Lambertian, Metal,
+    Dielectric, Lambertian, Metal,
 };
 use math::{Color, Point};
 
@@ -51,9 +51,9 @@ fn main() {
         albedo: Color::new(0.8, 0.8, 0.8),
         fuzz: 0.3,
     };
-    let material_right = Metal {
-        albedo: Color::new(0.8, 0.6, 0.2),
-        fuzz: 1.0,
+    let material_right = Dielectric {
+        albedo: Color::new(1.0, 1.0, 1.0),
+        refraction_index: 1.5,
     };
 
     let world: Vec<Box<dyn Hittable>> = vec![

@@ -18,24 +18,24 @@ impl<'a> Hittable for Sphere<'a> {
         let c = Vector::dot(&oc, &oc) - self.radius * self.radius;
 
         let discriminant = half_b * half_b - a * c;
-        if discriminant < 0.0 {
-            return None;
-        }
+        if discriminant > 0.0 {
+            let sqrt_discriminant = discriminant.sqrt();
 
-        let sqrt_discriminant = discriminant.sqrt();
-
-        let mut root = (-half_b - sqrt_discriminant) / a;
-        if root < t_min || root > t_max {
-            root = (-half_b + sqrt_discriminant) / a;
+            let mut root = (-half_b - sqrt_discriminant) / a;
             if root < t_min || root > t_max {
-                return None;
+                root = (-half_b + sqrt_discriminant) / a;
+                if root < t_min || root > t_max {
+                    return None;
+                }
             }
-        }
 
-        Some(HitRecord {
-            t: root,
-            normal: (ray.at(root) - self.center).unit(),
-            material: self.material,
-        })
+            Some(HitRecord {
+                t: root,
+                normal: (ray.at(root) - self.center).unit(),
+                material: self.material,
+            })
+        } else {
+            None
+        }
     }
 }

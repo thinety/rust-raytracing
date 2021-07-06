@@ -37,9 +37,9 @@ impl Image {
 
                 if let Some(samples_per_pixel) = self.antialiasing {
                     for _ in 0..samples_per_pixel {
-                        let h = ((j as f64) + rand::thread_rng().gen_range(0.0..1.0))
+                        let h = ((j as f64) + rand::thread_rng().gen_range(-0.5..=0.5))
                             / ((self.width - 1) as f64);
-                        let v = ((i as f64) + rand::thread_rng().gen_range(0.0..1.0))
+                        let v = ((i as f64) + rand::thread_rng().gen_range(-0.5..=0.5))
                             / ((self.height - 1) as f64);
 
                         let ray = camera.get_ray(h, v);
