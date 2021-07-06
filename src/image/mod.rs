@@ -37,12 +37,12 @@ impl Image {
 
                 if let Some(samples_per_pixel) = self.antialiasing {
                     for _ in 0..samples_per_pixel {
-                        let h = ((j as f64) + rand::thread_rng().gen_range(-0.5..=0.5))
-                            / ((self.width - 1) as f64);
-                        let v = ((i as f64) + rand::thread_rng().gen_range(-0.5..=0.5))
+                        let i = ((i as f64) + rand::thread_rng().gen_range(-0.5..=0.5))
                             / ((self.height - 1) as f64);
+                        let j = ((j as f64) + rand::thread_rng().gen_range(-0.5..=0.5))
+                            / ((self.width - 1) as f64);
 
-                        let ray = camera.get_ray(h, v);
+                        let ray = camera.get_ray(i, j);
 
                         color += ray_color(world, &ray, self.ray_depth);
                     }
@@ -50,10 +50,10 @@ impl Image {
                     let scale = 1.0 / (samples_per_pixel as f64);
                     color *= scale;
                 } else {
-                    let h = (j as f64) / ((self.width - 1) as f64);
-                    let v = (i as f64) / ((self.height - 1) as f64);
+                    let i = (i as f64) / ((self.height - 1) as f64);
+                    let j = (j as f64) / ((self.width - 1) as f64);
 
-                    let ray = camera.get_ray(h, v);
+                    let ray = camera.get_ray(i, j);
 
                     color += ray_color(world, &ray, self.ray_depth);
                 }

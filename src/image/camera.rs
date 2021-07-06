@@ -1,40 +1,43 @@
 use crate::math::{Point, Ray, Vector};
 
 pub struct Camera {
-    origin: Point,
-    horizontal: Vector,
+    look_from: Point,
+    look_to: Vector,
     vertical: Vector,
-    top_left_corner: Point,
+    horizontal: Vector,
 }
 
 impl Camera {
     pub fn new(
-        viewport_width: f64,
-        viewport_height: f64,
-        focal_length: f64,
-        origin: Point,
+        look_from: Point,
+        look_to: Vector,
+        v_up: Vector,
+        v_fov: f64,
+        aspect_ratio: f64,
     ) -> Self {
-        let horizontal = Vector::new(viewport_width, 0.0, 0.0);
-        let vertical = Vector::new(0.0, viewport_height, 0.0);
-        let focal = Vector::new(0.0, 0.0, focal_length);
+        let u = Vector::cross(&look_to, &v_up).unit();
+        let v = Vector::cross(&look_to, &u).unit();
+        // u, v and w = look_to together form an
+        // orthonormal base (assuming look_to is unit)
 
-        let top_left_corner = origin + focal - horizontal / 2.0 - vertical / 2.0;
+        let theta = v_fov.to_radians();
+        let h = (theta / 2.0).tan();
+        let viewport_height = 2.0 * h;
+        let viewport_width = aspect_ratio * viewport_height;
 
         Self {
-            origin,
-            horizontal,
-            vertical,
-            top_left_corner,
+            look_from,
+            look_to,
+            horizontal: viewport_width * u,
+            vertical: viewport_height * v,
         }
     }
 
-    pub fn get_ray(&self, h: f64, v: f64) -> Ray {
+    pub fn get_ray(&self, i: f64, j: f64) -> Ray {
+        let origin = self.look_from;
         let direction =
-            (self.top_left_corner + h * self.horizontal + v * self.vertical) - self.origin;
+            (self.look_to + (i - 0.5) * self.vertical + (j - 0.5) * self.horizontal).unit();
 
-        Ray {
-            origin: self.origin,
-            direction: direction.unit(),
-        }
+        Ray { origin, direction }
     }
 }

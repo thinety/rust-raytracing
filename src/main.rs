@@ -9,7 +9,7 @@ use material::{
     black_body::{BlackBody, NormalBlackBody},
     Dielectric, Lambertian, Metal,
 };
-use math::{Color, Point};
+use math::{Color, Point, Vector};
 
 fn main() {
     let aspect_ratio = 16.0 / 9.0;
@@ -25,11 +25,11 @@ fn main() {
 
     // Camera
     let camera = {
-        let viewport_width = 4.0;
-        let viewport_height = viewport_width / aspect_ratio;
-        let focal_length = 1.0;
-        let origin = Point::new(0.0, 0.0, 0.0);
-        Camera::new(viewport_width, viewport_height, focal_length, origin)
+        let look_from = Point::new(0.0, -1.0, 0.0);
+        let look_to = (Point::new(0.0, 0.0, 0.0) - look_from).unit();
+        let v_up = Vector::new(0.0, 0.0, 1.0);
+        let v_fov = 90.0;
+        Camera::new(look_from, look_to, v_up, v_fov, aspect_ratio)
     };
 
     // World
@@ -58,22 +58,22 @@ fn main() {
 
     let world: Vec<Box<dyn Hittable>> = vec![
         Box::new(Sphere {
-            center: Point::new(0.0, 100.5, 1.0),
+            center: Point::new(0.0, 0.0, -100.5),
             radius: 100.0,
             material: &material_ground,
         }),
         Box::new(Sphere {
-            center: Point::new(0.0, 0.0, 1.0),
+            center: Point::new(0.0, 0.0, 0.0),
             radius: 0.5,
             material: &material_center,
         }),
         Box::new(Sphere {
-            center: Point::new(-1.0, 0.0, 1.0),
+            center: Point::new(-1.0, 0.0, 0.0),
             radius: 0.5,
             material: &material_left,
         }),
         Box::new(Sphere {
-            center: Point::new(1.0, 0.0, 1.0),
+            center: Point::new(1.0, 0.0, 0.0),
             radius: 0.5,
             material: &material_right,
         }),
