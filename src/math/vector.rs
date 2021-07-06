@@ -48,10 +48,35 @@ impl ops::Mul<Vector> for f64 {
         Self::Output::new(self * rhs.x, self * rhs.y, self * rhs.z)
     }
 }
+
 impl ops::Div<f64> for Vector {
     type Output = Vector;
 
     fn div(self, rhs: f64) -> Self::Output {
         (1.0 / rhs) * self
+    }
+}
+
+impl ops::Neg for Vector {
+    type Output = Vector;
+
+    fn neg(self) -> Self::Output {
+        -1.0 * self
+    }
+}
+
+impl ops::Add for Vector {
+    type Output = Vector;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Self::Output::new(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z)
+    }
+}
+
+impl ops::Sub for Vector {
+    type Output = Vector;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        self + -rhs
     }
 }

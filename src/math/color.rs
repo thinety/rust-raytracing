@@ -48,3 +48,18 @@ impl ops::MulAssign<f64> for Color {
         self.b *= rhs;
     }
 }
+
+impl ops::Mul for Color {
+    type Output = Color;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        Self::Output::new(self.r * rhs.r, self.g * rhs.g, self.b * rhs.b)
+    }
+}
+impl ops::MulAssign for Color {
+    fn mul_assign(&mut self, rhs: Self) {
+        self.r *= rhs.r;
+        self.g *= rhs.g;
+        self.b *= rhs.b;
+    }
+}

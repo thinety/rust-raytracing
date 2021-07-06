@@ -30,10 +30,11 @@ impl ops::Add<Vector> for Point {
         Self::Output::new(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z)
     }
 }
+
 impl ops::Sub<Vector> for Point {
     type Output = Point;
 
     fn sub(self, rhs: Vector) -> Self::Output {
-        self + -1.0 * rhs
+        self + -rhs
     }
 }

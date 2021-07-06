@@ -1,7 +1,5 @@
 use super::{Point, Vector};
 
-/// Direction vector is expected to be unit length.
-/// Other code can (and probably will) rely on that.
 pub struct Ray {
     pub origin: Point,
     pub direction: Vector,

@@ -4,7 +4,8 @@ pub mod ppm;
 use rand::Rng;
 
 use crate::hittable::Hittable;
-use crate::math::Color;
+use crate::material::ScatterRecord;
+use crate::math::{Color, Ray};
 
 pub use camera::Camera;
 
@@ -43,7 +44,7 @@ impl Image {
 
                         let ray = camera.get_ray(h, v);
 
-                        color += world.ray_color(&ray, self.ray_depth);
+                        color += ray_color(world, &ray, self.ray_depth);
                     }
 
                     let scale = 1.0 / (samples_per_pixel as f64);
@@ -54,7 +55,7 @@ impl Image {
 
                     let ray = camera.get_ray(h, v);
 
-                    color += world.ray_color(&ray, self.ray_depth);
+                    color += ray_color(world, &ray, self.ray_depth);
                 }
 
                 color.gamma_correct();
@@ -63,5 +64,47 @@ impl Image {
             }
         }
         eprint!("done\n");
+    }
+}
+
+fn ray_color<World: Hittable>(world: &World, ray: &Ray, depth: u32) -> Color {
+    if depth == 0 {
+        return Color::new(0.0, 0.0, 0.0);
+    }
+
+    // t_min starts at 0.0001 to fix shadow acne
+    if let Some(hit_record) = world.hit(ray, 0.0001, f64::INFINITY) {
+        let hit_direction = ray.direction;
+        let hit_normal = hit_record.normal;
+        let hit_material = hit_record.material;
+
+        match hit_material.scatter(hit_direction, hit_normal) {
+            ScatterRecord::Ideal { color } => color,
+            ScatterRecord::NonIdeal {
+                attenuation,
+                direction,
+            } => {
+                let hit_point = ray.at(hit_record.t);
+                let scattered_ray = Ray {
+                    origin: hit_point,
+                    direction,
+                };
+                attenuation * ray_color(world, &scattered_ray, depth - 1)
+            }
+        }
+    } else {
+        let t = 0.5 * (1.0 - ray.direction.y);
+        let blue = Color {
+            r: 0.5,
+            g: 0.7,
+            b: 1.0,
+        };
+        let white = Color {
+            r: 1.0,
+            g: 1.0,
+            b: 1.0,
+        };
+
+        t * blue + (1.0 - t) * white
     }
 }
