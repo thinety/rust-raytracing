@@ -1,6 +1,6 @@
 use crate::math::{Color, Vector};
 
-use super::{reflect, Material, ScatterRecord};
+use super::{Material, ScatterRecord};
 
 pub struct Metal {
     pub albedo: Color,
@@ -25,4 +25,10 @@ impl Material for Metal {
             }
         }
     }
+}
+
+pub fn reflect(hit_direction: Vector, hit_normal: Vector) -> Vector {
+    let reflect_direction =
+        hit_direction - 2.0 * Vector::dot(&hit_direction, &hit_normal) * hit_normal;
+    reflect_direction
 }

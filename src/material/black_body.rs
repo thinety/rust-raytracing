@@ -12,9 +12,9 @@ impl Material for BlackBody {
     }
 }
 
-pub struct NormalBlackBody {}
+pub struct BlackBodyNormal {}
 
-impl Material for NormalBlackBody {
+impl Material for BlackBodyNormal {
     fn scatter(&self, _hit_direction: Vector, hit_normal: Vector) -> ScatterRecord {
         let normal_color = Color::new(hit_normal.x, hit_normal.y, hit_normal.z);
         let white = Color::new(1.0, 1.0, 1.0);

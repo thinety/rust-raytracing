@@ -1,15 +1,15 @@
 use crate::material::Material;
 use crate::math::{Point, Ray, Vector};
 
-use super::{HitRecord, Hittable};
+use super::{Entity, HitRecord};
 
-pub struct Sphere<'a> {
+pub struct Sphere<M: Material> {
     pub center: Point,
     pub radius: f64,
-    pub material: &'a dyn Material,
+    pub material: M,
 }
 
-impl<'a> Hittable for Sphere<'a> {
+impl<M: Material> Entity for Sphere<M> {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let oc = ray.origin - self.center;
 
@@ -32,7 +32,7 @@ impl<'a> Hittable for Sphere<'a> {
             Some(HitRecord {
                 t: root,
                 normal: (ray.at(root) - self.center).unit(),
-                material: self.material,
+                material: &self.material,
             })
         } else {
             None
