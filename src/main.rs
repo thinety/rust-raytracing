@@ -5,7 +5,7 @@ mod math;
 
 use entity::{Entity, Sphere};
 use image::{ppm, Camera, Image};
-use material::{Dielectric, Lambertian, Metal};
+use material::{Dielectric, Lambertian, Material, Metal};
 use math::{Color, Point, Vector};
 
 fn main() {
@@ -25,36 +25,36 @@ fn main() {
         Camera::new(look_from, look_at, v_up, v_fov, aspect_ratio)
     };
 
-    let world: Vec<Box<dyn Entity + Sync>> = vec![
-        Box::new(Sphere {
+    let world = vec![
+        Entity::from(Sphere {
             center: Point::new(0.0, 0.0, -100.5),
             radius: 100.0,
-            material: Lambertian {
+            material: Material::from(Lambertian {
                 albedo: Color::new(0.8, 0.8, 0.0),
-            },
+            }),
         }),
-        Box::new(Sphere {
+        Entity::from(Sphere {
             center: Point::new(0.0, 0.0, 0.0),
             radius: 0.5,
-            material: Lambertian {
+            material: Material::from(Lambertian {
                 albedo: Color::new(0.7, 0.3, 0.3),
-            },
+            }),
         }),
-        Box::new(Sphere {
+        Entity::from(Sphere {
             center: Point::new(-1.0, 0.0, 0.0),
             radius: 0.5,
-            material: Metal {
+            material: Material::from(Metal {
                 albedo: Color::new(0.8, 0.8, 0.8),
                 fuzz: 0.3,
-            },
+            }),
         }),
-        Box::new(Sphere {
+        Entity::from(Sphere {
             center: Point::new(1.0, 0.0, 0.0),
             radius: 0.5,
-            material: Dielectric {
+            material: Material::from(Dielectric {
                 albedo: Color::new(1.0, 1.0, 1.0),
                 refraction_index: 1.5,
-            },
+            }),
         }),
     ];
 

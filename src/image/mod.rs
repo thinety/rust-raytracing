@@ -4,8 +4,8 @@ pub mod ppm;
 use rand::Rng;
 use rayon;
 
-use crate::entity::Entity;
-use crate::material::ScatterRecord;
+use crate::entity::{Entity, EntityInterface};
+use crate::material::{MaterialInterface, ScatterRecord};
 use crate::math::{Color, Ray};
 
 pub use camera::Camera;
@@ -26,7 +26,7 @@ impl Image {
         }
     }
 
-    pub fn _render<E: Entity>(&mut self, camera: &Camera, world: &Vec<E>, ray_depth: usize) {
+    pub fn _render(&mut self, camera: &Camera, world: &[Entity], ray_depth: usize) {
         eprint!("Rendering image... ");
 
         for i in 0..self.height {
@@ -47,10 +47,10 @@ impl Image {
         eprint!("done\n");
     }
 
-    pub fn _render_antialiasing<E: Entity>(
+    pub fn _render_antialiasing(
         &mut self,
         camera: &Camera,
-        world: &Vec<E>,
+        world: &[Entity],
         ray_depth: usize,
         samples_per_pixel: usize,
     ) {
@@ -82,10 +82,10 @@ impl Image {
         eprint!("done\n");
     }
 
-    pub fn render_threaded<E: Entity + Sync>(
+    pub fn render_threaded(
         &mut self,
         camera: &Camera,
-        world: &Vec<E>,
+        world: &[Entity],
         ray_depth: usize,
         samples_per_pixel_per_thread: usize,
         thread_num: usize,
@@ -102,11 +102,11 @@ impl Image {
     }
 }
 
-fn render_threaded<E: Entity + Sync>(
+fn render_threaded(
     width: usize,
     height: usize,
     camera: &Camera,
-    world: &Vec<E>,
+    world: &[Entity],
     ray_depth: usize,
     samples_per_pixel_per_thread: usize,
     thread_num: usize,
@@ -167,16 +167,16 @@ fn render_threaded<E: Entity + Sync>(
     }
 }
 
-fn ray_color<E: Entity>(world: &Vec<E>, ray: &Ray, depth: usize) -> Color {
+fn ray_color(world: &[Entity], ray: &Ray, depth: usize) -> Color {
     if depth == 0 {
         return Color::new(0.0, 0.0, 0.0);
     }
 
     let mut t_closest_so_far = f64::INFINITY;
     let mut hit = None;
-    for hittable in world {
+    for entity in world {
         // t_min starts at 0.0001 to fix shadow acne
-        if let Some(hit_record) = hittable.hit(ray, 0.0001, t_closest_so_far) {
+        if let Some(hit_record) = entity.hit(ray, 0.0001, t_closest_so_far) {
             t_closest_so_far = hit_record.t;
             hit = Some(hit_record);
         }

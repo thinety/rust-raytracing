@@ -3,12 +3,28 @@ mod dielectric;
 mod lambertian;
 mod metal;
 
+use enum_dispatch::enum_dispatch;
+
 use crate::math::{Color, Vector};
 
 pub use black_body::{BlackBody, BlackBodyNormal};
 pub use dielectric::Dielectric;
 pub use lambertian::Lambertian;
 pub use metal::Metal;
+
+#[enum_dispatch]
+pub enum Material {
+    BlackBody,
+    BlackBodyNormal,
+    Lambertian,
+    Metal,
+    Dielectric,
+}
+
+#[enum_dispatch(Material)]
+pub trait MaterialInterface {
+    fn scatter(&self, hit_direction: Vector, hit_normal: Vector) -> ScatterRecord;
+}
 
 pub enum ScatterRecord {
     Ideal {
@@ -18,18 +34,4 @@ pub enum ScatterRecord {
         attenuation: Color,
         direction: Vector,
     },
-}
-
-pub trait Material {
-    fn scatter(&self, hit_direction: Vector, hit_normal: Vector) -> ScatterRecord;
-}
-
-impl<T> Material for T
-where
-    T: std::ops::Deref,
-    <T as std::ops::Deref>::Target: Material,
-{
-    fn scatter(&self, hit_direction: Vector, hit_normal: Vector) -> ScatterRecord {
-        (**self).scatter(hit_direction, hit_normal)
-    }
 }

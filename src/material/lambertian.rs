@@ -1,12 +1,12 @@
 use crate::math::{Color, Vector};
 
-use super::{Material, ScatterRecord};
+use super::{MaterialInterface, ScatterRecord};
 
 pub struct Lambertian {
     pub albedo: Color,
 }
 
-impl Material for Lambertian {
+impl MaterialInterface for Lambertian {
     fn scatter(&self, _hit_direction: Vector, hit_normal: Vector) -> ScatterRecord {
         let non_unit_scatter_direction = hit_normal + Vector::random_unit();
 

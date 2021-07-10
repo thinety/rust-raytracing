@@ -1,15 +1,15 @@
 use crate::material::Material;
 use crate::math::{Point, Ray, Vector};
 
-use super::{Entity, HitRecord};
+use super::{EntityInterface, HitRecord};
 
-pub struct Sphere<M: Material> {
+pub struct Sphere {
     pub center: Point,
     pub radius: f64,
-    pub material: M,
+    pub material: Material,
 }
 
-impl<M: Material> Entity for Sphere<M> {
+impl EntityInterface for Sphere {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let oc = ray.origin - self.center;
 

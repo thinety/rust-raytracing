@@ -1,13 +1,13 @@
 use crate::math::{Color, Vector};
 
-use super::{Material, ScatterRecord};
+use super::{MaterialInterface, ScatterRecord};
 
 pub struct Metal {
     pub albedo: Color,
     pub fuzz: f64,
 }
 
-impl Material for Metal {
+impl MaterialInterface for Metal {
     fn scatter(&self, hit_direction: Vector, hit_normal: Vector) -> ScatterRecord {
         let reflect_direction = reflect(hit_direction, hit_normal);
         let non_unit_scatter_direction = reflect_direction + self.fuzz * Vector::random_unit();
