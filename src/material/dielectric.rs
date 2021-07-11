@@ -55,9 +55,8 @@ pub fn refract(hit_direction: Vector, hit_normal: Vector, refraction_index: f64)
     } else {
         // refracts
         let refract_perpendicular = refraction_ratio * (hit_direction - cos_theta * refract_normal);
-        let refract_parallel = (1.0 - Vector::dot(&refract_perpendicular, &refract_perpendicular))
-            .sqrt()
-            * refract_normal;
+        let refract_parallel =
+            (1.0 - refract_perpendicular.length_squared()).sqrt() * refract_normal;
         refract_direction = refract_perpendicular + refract_parallel;
     }
 

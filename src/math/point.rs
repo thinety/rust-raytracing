@@ -30,11 +30,23 @@ impl ops::Add<Vector> for Point {
         Self::Output::new(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z)
     }
 }
+impl ops::AddAssign<Vector> for Point {
+    fn add_assign(&mut self, rhs: Vector) {
+        self.x += rhs.x;
+        self.y += rhs.y;
+        self.z += rhs.z;
+    }
+}
 
 impl ops::Sub<Vector> for Point {
     type Output = Point;
 
     fn sub(self, rhs: Vector) -> Self::Output {
         self + -rhs
+    }
+}
+impl ops::SubAssign<Vector> for Point {
+    fn sub_assign(&mut self, rhs: Vector) {
+        *self += -rhs;
     }
 }

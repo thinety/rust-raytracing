@@ -24,11 +24,12 @@ impl Vector {
         )
     }
 
-    pub fn unit(self) -> Self {
-        let length_squared = Self::dot(&self, &self);
-        let length = length_squared.sqrt();
-        let inverse_length = 1.0 / length;
-        inverse_length * self
+    pub fn length_squared(&self) -> f64 {
+        Self::dot(self, self)
+    }
+    pub fn unit(mut self) -> Self {
+        self /= self.length_squared().sqrt();
+        self
     }
 
     pub fn random_unit() -> Self {
@@ -48,12 +49,24 @@ impl ops::Mul<Vector> for f64 {
         Self::Output::new(self * rhs.x, self * rhs.y, self * rhs.z)
     }
 }
+impl ops::MulAssign<f64> for Vector {
+    fn mul_assign(&mut self, rhs: f64) {
+        self.x *= rhs;
+        self.y *= rhs;
+        self.z *= rhs;
+    }
+}
 
 impl ops::Div<f64> for Vector {
     type Output = Vector;
 
     fn div(self, rhs: f64) -> Self::Output {
         (1.0 / rhs) * self
+    }
+}
+impl ops::DivAssign<f64> for Vector {
+    fn div_assign(&mut self, rhs: f64) {
+        *self *= 1.0 / rhs;
     }
 }
 
@@ -72,11 +85,23 @@ impl ops::Add for Vector {
         Self::Output::new(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z)
     }
 }
+impl ops::AddAssign for Vector {
+    fn add_assign(&mut self, rhs: Self) {
+        self.x += rhs.x;
+        self.y += rhs.y;
+        self.z += rhs.z;
+    }
+}
 
 impl ops::Sub for Vector {
     type Output = Vector;
 
     fn sub(self, rhs: Self) -> Self::Output {
         self + -rhs
+    }
+}
+impl ops::SubAssign for Vector {
+    fn sub_assign(&mut self, rhs: Self) {
+        *self += -rhs;
     }
 }

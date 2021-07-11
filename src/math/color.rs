@@ -19,21 +19,6 @@ impl Color {
     }
 }
 
-impl ops::Add for Color {
-    type Output = Color;
-
-    fn add(self, rhs: Self) -> Self::Output {
-        Self::Output::new(self.r + rhs.r, self.g + rhs.g, self.b + rhs.b)
-    }
-}
-impl ops::AddAssign for Color {
-    fn add_assign(&mut self, rhs: Self) {
-        self.r += rhs.r;
-        self.g += rhs.g;
-        self.b += rhs.b;
-    }
-}
-
 impl ops::Mul<Color> for f64 {
     type Output = Color;
 
@@ -46,6 +31,21 @@ impl ops::MulAssign<f64> for Color {
         self.r *= rhs;
         self.g *= rhs;
         self.b *= rhs;
+    }
+}
+
+impl ops::Add for Color {
+    type Output = Color;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Self::Output::new(self.r + rhs.r, self.g + rhs.g, self.b + rhs.b)
+    }
+}
+impl ops::AddAssign for Color {
+    fn add_assign(&mut self, rhs: Self) {
+        self.r += rhs.r;
+        self.g += rhs.g;
+        self.b += rhs.b;
     }
 }
 

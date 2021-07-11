@@ -1,6 +1,6 @@
 use super::Image;
 
-pub fn output(image: &Image) {
+pub fn _output(image: &Image) {
     eprint!("Outputting image (ppm format)... ");
     print!("P3\n{} {}\n255\n", image.width, image.height);
     for pixel in &image.pixels {

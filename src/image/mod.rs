@@ -1,4 +1,5 @@
-mod camera;
+pub mod camera;
+pub mod pixels;
 pub mod ppm;
 
 use rand::Rng;
@@ -8,7 +9,7 @@ use crate::entity::{Entity, EntityInterface};
 use crate::material::{MaterialInterface, ScatterRecord};
 use crate::math::{Color, Ray};
 
-pub use camera::Camera;
+use camera::Camera;
 
 pub struct Image {
     pixels: Vec<Color>,
@@ -27,8 +28,6 @@ impl Image {
     }
 
     pub fn _render(&mut self, camera: &Camera, world: &[Entity], ray_depth: usize) {
-        eprint!("Rendering image... ");
-
         for i in 0..self.height {
             for j in 0..self.width {
                 let color = &mut self.pixels[i * self.width + j];
@@ -43,8 +42,6 @@ impl Image {
                 color.gamma_correct();
             }
         }
-
-        eprint!("done\n");
     }
 
     pub fn _render_antialiasing(
@@ -54,8 +51,6 @@ impl Image {
         ray_depth: usize,
         samples_per_pixel: usize,
     ) {
-        eprint!("Rendering image... ");
-
         for i in 0..self.height {
             for j in 0..self.width {
                 let color = &mut self.pixels[i * self.width + j];
@@ -78,8 +73,6 @@ impl Image {
                 color.gamma_correct();
             }
         }
-
-        eprint!("done\n");
     }
 
     pub fn render_threaded(
@@ -114,8 +107,6 @@ fn render_threaded(
     if thread_num == 1 {
         let mut pixels = vec![Color::new(0.0, 0.0, 0.0); width * height];
 
-        eprint!("(thread) Rendering image...\n");
-
         for i in 0..height {
             for j in 0..width {
                 let color = &mut pixels[i * width + j];
@@ -136,8 +127,6 @@ fn render_threaded(
                 color.gamma_correct();
             }
         }
-
-        eprint!("(thread) done\n");
 
         pixels
     } else {
@@ -202,7 +191,7 @@ fn ray_color(world: &[Entity], ray: &Ray, depth: usize) -> Color {
             }
         }
     } else {
-        let t = 0.5 * (1.0 - ray.direction.y);
+        let t = 0.5 * (1.0 + ray.direction.z);
         let blue = Color::new(0.5, 0.7, 1.0);
         let white = Color::new(1.0, 1.0, 1.0);
         t * blue + (1.0 - t) * white
