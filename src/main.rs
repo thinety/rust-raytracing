@@ -139,88 +139,83 @@ fn main() {
 
                 image.render_threaded(&camera, &world, 50, 1, 8);
 
-                output(&image, pixels.get_frame());
+                output(&image, pixels.frame_mut());
 
                 pixels.render().expect("Failed to render");
             }
-            Event::DeviceEvent { event, .. } => {
-                match event {
-                    DeviceEvent::Key(input) => {
-                        if let Some(key_code) = input.virtual_keycode {
-                            match (input.state, key_code) {
-                                (ElementState::Pressed, VirtualKeyCode::W) if window_grabbed => {
-                                    camera_controls.moving_forward = true;
-                                }
-                                (ElementState::Released, VirtualKeyCode::W) if window_grabbed => {
-                                    camera_controls.moving_forward = false;
-                                }
-                                (ElementState::Pressed, VirtualKeyCode::S) if window_grabbed => {
-                                    camera_controls.moving_backward = true;
-                                }
-                                (ElementState::Released, VirtualKeyCode::S) if window_grabbed => {
-                                    camera_controls.moving_backward = false;
-                                }
-                                (ElementState::Pressed, VirtualKeyCode::A) if window_grabbed => {
-                                    camera_controls.moving_left = true;
-                                }
-                                (ElementState::Released, VirtualKeyCode::A) if window_grabbed => {
-                                    camera_controls.moving_left = false;
-                                }
-                                (ElementState::Pressed, VirtualKeyCode::D) if window_grabbed => {
-                                    camera_controls.moving_right = true;
-                                }
-                                (ElementState::Released, VirtualKeyCode::D) if window_grabbed => {
-                                    camera_controls.moving_right = false;
-                                }
-                                (ElementState::Pressed, VirtualKeyCode::Space)
-                                    if window_grabbed =>
-                                {
-                                    camera_controls.moving_up = true;
-                                }
-                                (ElementState::Released, VirtualKeyCode::Space)
-                                    if window_grabbed =>
-                                {
-                                    camera_controls.moving_up = false;
-                                }
-                                (ElementState::Pressed, VirtualKeyCode::LShift)
-                                    if window_grabbed =>
-                                {
-                                    camera_controls.moving_down = true;
-                                }
-                                (ElementState::Released, VirtualKeyCode::LShift)
-                                    if window_grabbed =>
-                                {
-                                    camera_controls.moving_down = false;
-                                }
-                                (ElementState::Pressed, VirtualKeyCode::Escape) => {
-                                    if window_grabbed {
-                                        window.set_cursor_grab(false).unwrap();
-                                        window.set_cursor_visible(true);
-                                        window_grabbed = false;
-                                    } else {
-                                        window.set_cursor_grab(true).unwrap();
-                                        window.set_cursor_visible(false);
-                                        window_grabbed = true;
-                                    }
-                                }
-                                _ => {}
+            Event::WindowEvent {
+                event: WindowEvent::KeyboardInput { input, .. },
+                ..
+            } => {
+                if let Some(key_code) = input.virtual_keycode {
+                    match (input.state, key_code) {
+                        (ElementState::Pressed, VirtualKeyCode::W) if window_grabbed => {
+                            camera_controls.moving_forward = true;
+                        }
+                        (ElementState::Released, VirtualKeyCode::W) if window_grabbed => {
+                            camera_controls.moving_forward = false;
+                        }
+                        (ElementState::Pressed, VirtualKeyCode::S) if window_grabbed => {
+                            camera_controls.moving_backward = true;
+                        }
+                        (ElementState::Released, VirtualKeyCode::S) if window_grabbed => {
+                            camera_controls.moving_backward = false;
+                        }
+                        (ElementState::Pressed, VirtualKeyCode::A) if window_grabbed => {
+                            camera_controls.moving_left = true;
+                        }
+                        (ElementState::Released, VirtualKeyCode::A) if window_grabbed => {
+                            camera_controls.moving_left = false;
+                        }
+                        (ElementState::Pressed, VirtualKeyCode::D) if window_grabbed => {
+                            camera_controls.moving_right = true;
+                        }
+                        (ElementState::Released, VirtualKeyCode::D) if window_grabbed => {
+                            camera_controls.moving_right = false;
+                        }
+                        (ElementState::Pressed, VirtualKeyCode::Space) if window_grabbed => {
+                            camera_controls.moving_up = true;
+                        }
+                        (ElementState::Released, VirtualKeyCode::Space) if window_grabbed => {
+                            camera_controls.moving_up = false;
+                        }
+                        (ElementState::Pressed, VirtualKeyCode::LShift) if window_grabbed => {
+                            camera_controls.moving_down = true;
+                        }
+                        (ElementState::Released, VirtualKeyCode::LShift) if window_grabbed => {
+                            camera_controls.moving_down = false;
+                        }
+                        (ElementState::Pressed, VirtualKeyCode::Escape) => {
+                            if window_grabbed {
+                                window
+                                    .set_cursor_grab(winit::window::CursorGrabMode::None)
+                                    .unwrap();
+                                window.set_cursor_visible(true);
+                                window_grabbed = false;
+                            } else {
+                                window
+                                    .set_cursor_grab(winit::window::CursorGrabMode::Locked)
+                                    .unwrap();
+                                window.set_cursor_visible(false);
+                                window_grabbed = true;
                             }
                         }
+                        _ => {}
                     }
-                    DeviceEvent::MouseMotion { delta } if window_grabbed => {
-                        camera_controls.mouse_delta.0 += delta.0;
-                        camera_controls.mouse_delta.1 += delta.1;
-                    }
-                    _ => {}
                 }
             }
-            Event::WindowEvent { event, .. } => {
-                match event {
-                    WindowEvent::CloseRequested => {
-                        *control_flow = ControlFlow::Exit;
-                    }
-                    _ => {}
-                }
+            Event::DeviceEvent {
+                event: DeviceEvent::MouseMotion { delta },
+                ..
+            } if window_grabbed => {
+                camera_controls.mouse_delta.0 += delta.0;
+                camera_controls.mouse_delta.1 += delta.1;
+            }
+            Event::WindowEvent {
+                event: WindowEvent::CloseRequested,
+                ..
+            } => {
+                *control_flow = ControlFlow::Exit;
             }
             _ => {}
         }
